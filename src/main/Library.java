@@ -190,5 +190,145 @@ public class Library {
         }
         return null;
     }
+
+    public void sellBook(String customerName,String bookTitle,String form) throws Exception {
+        Customer customer=getCustomer(customerName);
+        Book book=getBookByTitleAndForm(bookTitle,form);
+        try
+        {
+            customer.buyBook(book);
+        }
+        catch (NullPointerException ex){
+            System.out.println("wrong title or customer name");
+            return;
+        }
+        String sellings="";
+        FileReader fileReader=new FileReader(files.getSellingFile());
+        BufferedReader bufferedReader=new BufferedReader(fileReader);
+        String read=bufferedReader.readLine();
+        while(read!=null){
+            sellings+=read+"\n";
+            read=bufferedReader.readLine();
+        }
+        fileReader.close();
+        bufferedReader.close();
+
+
+        FileWriter fileWriter=new FileWriter(files.getSellingFile());
+        PrintWriter printWriter=new PrintWriter(fileWriter);
+
+        printWriter.print(sellings);
+        //header
+        //------------------
+
+        printWriter.print("|");
+
+        int length=customerName.length();
+        int spacesAfter=(32-length)/2;
+        int spacesBefore= (length%2==0?spacesAfter:spacesAfter+1);
+
+        for(int i=0;i<spacesBefore;i++){
+            printWriter.print(" ");
+        }
+
+        printWriter.print(customerName);
+        for(int i=0;i<spacesAfter;i++){
+            printWriter.print(" ");
+        }
+        printWriter.print("|");
+        //------------------
+
+        length=bookTitle.length();
+        spacesAfter=(20-length)/2;
+        spacesBefore= (length%2==0?spacesAfter:spacesAfter+1);
+
+        for(int i=0;i<spacesBefore;i++){
+            printWriter.print(" ");
+        }
+
+        printWriter.print(bookTitle);
+        for(int i=0;i<spacesAfter;i++){
+            printWriter.print(" ");
+        }
+        printWriter.print("|");
+//------------------
+
+        length=String.valueOf(book.getPrice()).length();
+        spacesAfter=(10-length)/2;
+        spacesBefore= (length%2==0?spacesAfter:spacesAfter+1);
+
+        for(int i=0;i<spacesBefore;i++){
+            printWriter.print(" ");
+        }
+
+        printWriter.print(book.getPrice());
+        for(int i=0;i<spacesAfter;i++){
+            printWriter.print(" ");
+        }
+        printWriter.println("|");
+        printSeparatorLineForSellings(printWriter);
+        printWriter.close();
+        fileWriter.close();
+    }
+
+
+
+    public void deleteCustomer(String customerName){
+        Customer customer = getCustomer(customerName);
+        if(customer == null){
+            System.out.println("wrong customer name");
+        }
+        customers.remove(customer);
+    }
+    public void deleteBook(String title,String form){
+        Book book = getBookByTitleAndForm(title,form);
+        if(book==null){
+            System.out.println("Wrong title or form");
+            return;
+        }
+        books.remove(book);
+    }
+    void showType(String type){
+        System.out.println("Books of type"+type+":" );
+        int numberOfBooks=0;
+        for(Book book : books){
+            if(book.getType().equals(type)){
+                System.out.println(book.getTitle()+": "+book.getForm());
+                numberOfBooks++;
+            }
+        }
+        if(numberOfBooks==0){
+            System.out.println("no books of type "+type);
         }
     }
+
+    //print all books in the library
+    void showBooks() throws IOException {
+        System.out.println("Books in our library:");
+        FileReader fileReader=new FileReader(files.getBooksFile());
+        BufferedReader bufferedReader=new BufferedReader(fileReader);
+        String line=bufferedReader.readLine();
+        while(line!=null){
+            System.out.println(line);
+            line=bufferedReader.readLine();
+        }
+        fileReader.close();
+        bufferedReader.close();
+    }
+
+    //print all books that the customer who logged in has bought
+    void showCustomerBook(Customer customer){
+        customer.printBooks();
+    }
+    public Customer login(String name,String password){
+        for(Customer customer: getCustomers()){
+            if((customer.getFirstName()+customer.getLastName()).equals(name) && customer.getPassword().equals(password)) return customer;
+        }
+        return null;
+    }
+
+    
+    }
+
+        
+    
